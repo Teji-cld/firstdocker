@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15
+    container_name: shop-db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: shopdb
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_NAME: shopdb
+      DB_USER: admin
+      DB_PASSWORD: admin123
+    ports:
+      - "5001:5000"
+
+  book-service:
+    build: ./book-service
+    container_name: book-service
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_NAME: shopdb
+      DB_USER: admin
+      DB_PASSWORD: admin123
+    ports:
+      - "5002:5000"
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    depends_on:
+      - auth-service
+      - book-service
+    ports:
+      - "8080:80"

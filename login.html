@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Login - Book Shop</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f4f4f4; display: flex; height: 100vh; align-items: center; justify-content: center; }
+  .box { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 300px; }
+  h2 { text-align: center; }
+  input { width: 100%; padding: 8px; margin: 8px 0; box-sizing: border-box; }
+  button { width: 48%; padding: 10px; margin-top: 10px; cursor: pointer; }
+  #message { text-align: center; color: red; margin-top: 10px; }
+</style>
+</head>
+<body>
+  <div class="box">
+    <h2>📚 Book Shop</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <div>
+      <button onclick="login()">Login</button>
+      <button onclick="signup()">Sign Up</button>
+    </div>
+    <div id="message"></div>
+  </div>
+
+  <script>
+    const AUTH_URL = `http://${window.location.hostname}:5001`;
+
+    async function login() {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      const res = await fetch(`${AUTH_URL}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        localStorage.setItem("username", username);
+        window.location.href = "shop.html";
+      } else {
+        document.getElementById("message").innerText = data.error || "Login failed";
+      }
+    }
+
+    async function signup() {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      const res = await fetch(`${AUTH_URL}/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+      document.getElementById("message").style.color = res.ok ? "green" : "red";
+      document.getElementById("message").innerText = data.message || data.error;
+    }
+  </script>
+</body>
+</html>
